@@ -1,0 +1,45 @@
+I"�<blockquote>
+  <p>JPA를 이용하면 페이징이 매우 단순해진다. 구현의 추상성은 개발자가 구상하고 그에 대한 구현은 JPA가 해주는 꼴이다.</p>
+</blockquote>
+
+<p><br /></p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">setFirstResult</span><span class="o">(</span><span class="kt">int</span> <span class="n">startPosition</span><span class="o">)</span> <span class="o">:</span> <span class="n">조회</span> <span class="n">시작</span> <span class="n">위치</span> <span class="o">(</span><span class="mi">0</span><span class="n">부터</span> <span class="n">시작</span><span class="o">)</span>
+<span class="n">setMaxResults</span><span class="o">(</span><span class="kt">int</span> <span class="n">maxResult</span><span class="o">)</span> <span class="o">:</span> <span class="n">조회할</span> <span class="n">데이터</span> <span class="n">수</span>
+</code></pre></div></div>
+
+<p>이 두개만 있으면 페이징을 구현할 수 있다. 조회 시작위치를 지정하고 조회할 데이터의 수를 넣으면 그만큼의 값을 가져온다.</p>
+
+<h2 id="페이징-구현-코드">페이징 구현 코드</h2>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+    <span class="nc">Member</span> <span class="n">member</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Member</span><span class="o">();</span>
+    <span class="n">member</span><span class="o">.</span><span class="na">setUsername</span><span class="o">(</span><span class="s">"member"</span> <span class="o">+</span> <span class="n">i</span><span class="o">);</span>
+    <span class="n">member</span><span class="o">.</span><span class="na">setAge</span><span class="o">(</span><span class="n">i</span><span class="o">);</span>
+    <span class="n">em</span><span class="o">.</span><span class="na">persist</span><span class="o">(</span><span class="n">member</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="n">em</span><span class="o">.</span><span class="na">flush</span><span class="o">();</span>
+<span class="n">em</span><span class="o">.</span><span class="na">clear</span><span class="o">();</span>
+
+<span class="nc">List</span><span class="o">&lt;</span><span class="nc">Member</span><span class="o">&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="n">em</span><span class="o">.</span><span class="na">createQuery</span><span class="o">(</span><span class="s">"select m from Member m order by m.age desc"</span><span class="o">,</span> <span class="nc">Member</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">setFirstResult</span><span class="o">(</span><span class="mi">0</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">setMaxResults</span><span class="o">(</span><span class="mi">10</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">getResultList</span><span class="o">();</span>
+
+<span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"result.size() = "</span> <span class="o">+</span> <span class="n">result</span><span class="o">.</span><span class="na">size</span><span class="o">());</span>
+<span class="k">for</span> <span class="o">(</span><span class="nc">Member</span> <span class="n">member1</span> <span class="o">:</span> <span class="n">result</span><span class="o">)</span> <span class="o">{</span>
+    <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"member1.getUsername() = "</span> <span class="o">+</span> <span class="n">member1</span><span class="o">.</span><span class="na">getUsername</span><span class="o">());</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>맨 위의 포문은 100명의 멤버를 데이터베이스에 넣기 위한 코드.</p>
+
+<p>.setFirstResult()와 .setMaxResults 를 이용해서 시작 위치를 지정하고 가져올 개수를 넣어주면 알아서 페이징 처리가 된다.</p>
+
+<p>과거에 페이징 처리 쿼리르 짰었던 기억을 생각하면 훨씬 간편하긴 하다.</p>
+
+<p>필자는 MySQL로 페이징을 했어서 어렵지 않았었지만, Oracle 페이징 쿼리를 보니 참 난감했다.</p>
+
+<p>이러한 JPA페이징 처리를 봤을 때 와 이게 된다고? 하면 반쯤 성공이라고 본다.</p>
+:ET
